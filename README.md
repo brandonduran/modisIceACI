@@ -36,5 +36,4 @@ The SW cloud radiative kernel is available to download at https://github.com/bra
 
 ## Running the Notebook
 
-Inside the data folder, two separate new folders should be created: "PI" and "PD". Each folder should contain four files, corresponding to the first four variables listed in the input table above for each simulation. The naming convention should be *VARNAME.nc*, eg *TS.nc*. 
-<!-- These netCDF files are too big to host on Github, but are available through the UCSD library digital collections. -->
+Inside the data folder, two separate new folders should be created: "PI" and "PD". Each folder should contain four files, corresponding to the first four variables listed in the input table above for each simulation. The naming convention should be *VARNAME.nc*, eg *TS.nc*. Example data files are too big to host here, but will be made available through the UCSD library digital collections when the publication is accepted. Alternatively, all PPE output is accessible through the NCAR filesystem, or reach out to me for access.
