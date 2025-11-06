@@ -1,4 +1,7 @@
 # modisIceACI
+
+[![DOI](https://zenodo.org/badge/1086077645.svg)](https://doi.org/10.5281/zenodo.17544907)
+
 Code for decomposing the shortwave effective radiative forcing from aerosol-cloud interactions (SW ERFaci) from ice clouds into components associated with the Twomey effect and IWP and ICF adjustments.
 
 ## References 
