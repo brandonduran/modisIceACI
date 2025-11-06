@@ -26,6 +26,8 @@ The associated code requires the following inputs, including new effective radiu
 | monthly mean | TS     | surface temperature | K     | nc            |
 | monthly mean | SWkernel | SW cloud radiative kernel for ice clouds | W/m^2/% | nc |
 
+Surface temperature is needed only for calculation of cloud feedbacks.
+
 The SW cloud radiative kernel is available to download at https://github.com/brandonduran/iceACI/tree/main/data
 
 - SWkernel_CTP250_iceflag3.nc: SW cloud radiative kernel developed using the zonal mean temperature and humidity profile from a CAM6 control run. These are best for diagnosing feedbacks / forcing relative to a modeled pre-industrial climate state. Please refer to Wall et al. (2023) and Duran et al. (2025) for details.
