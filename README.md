@@ -14,8 +14,8 @@ Code for decomposing the shortwave effective radiative forcing from aerosol-clou
 - Zelinka, M.D., S.A. Klein, K.E. Taylor, T. Andrews, M.J. Webb, J.M. Gregory, and P.M. Forster, 2013: 
     [Contributions of Different Cloud Types to Feedbacks and Rapid Adjustments in CMIP5](http://journals.ametsoc.org/doi/abs/10.1175/JCLI-D-12-00555.1). 
     J. Climate, 26, 5007-5027. doi:10.1175/JCLI-D-12-00555.1.
-  - Wall, C. J., Storelvmo, T., A. Possner, 2023: [Global observations of aerosol indirect effects from marine liquid clouds](https://acp.copernicus.org/articles/23/13125/2023/). Atmospheric Chemistry and Physics, 23, 13 125–13 141, doi:10.5194/acp-23-13125-2023.
-  - Duran, B.M., Wall, C.J., Lutsko, N.J., Michibata, T., Ma, P.L., Qin, Y., Duffy, M.L., Medeiros, B. and Debolskiy, M., 2025: [A new method for diagnosing effective radiative forcing from aerosol–cloud interactions in climate models](https://acp.copernicus.org/articles/25/2123/2025/). Atmospheric Chemistry and Physics, 25(4), 2123-2146. doi:10.5194/acp-25-2123-2025.
+- Wall, C. J., Storelvmo, T., A. Possner, 2023: [Global observations of aerosol indirect effects from marine liquid clouds](https://acp.copernicus.org/articles/23/13125/2023/). Atmospheric Chemistry and Physics, 23, 13 125–13 141, doi:10.5194/acp-23-13125-2023.
+- Duran, B.M., Wall, C.J., Lutsko, N.J., Michibata, T., Ma, P.L., Qin, Y., Duffy, M.L., Medeiros, B. and Debolskiy, M., 2025: [A new method for diagnosing effective radiative forcing from aerosol–cloud interactions in climate models](https://acp.copernicus.org/articles/25/2123/2025/). Atmospheric Chemistry and Physics, 25(4), 2123-2146. doi:10.5194/acp-25-2123-2025.
  
 ## Input
 
