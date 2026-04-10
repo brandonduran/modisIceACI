@@ -121,10 +121,90 @@ def get_kernel_regrid(ctl):
     ctl_albcs = xr.where(ctl_albcs < 0.0, 0, ctl_albcs).transpose("time", "lat", "lon",...)
 
     # Use control albcs to map SW kernel to appropriate longitudes
-    SWK = map_SWkern_to_lon(SWkernel, ctl_albcs, ctl)
+    #SWK = map_SWkern_to_lon(SWkernel, ctl_albcs, ctl)
+    SWK = map_SWkern_to_lon_fast(SWkernel, ctl_albcs, ctl)
+
 
     return SWK
 ""
+def map_SWkern_to_lon_fast(SWkernel, albcsmap, ctl):
+    """
+    Vectorized replacement for map_SWkern_to_lon.
+
+    Instead of looping over (time, lat), this uses numpy advanced indexing
+    (take_along_axis) to perform the albedo-bin interpolation in one shot
+    across all dimensions simultaneously.
+
+    SWkernel : DataArray, shape (T, reff, iwp, LAT, 3)
+        Kernel values at 3 clear-sky albedo bins [0.0, 0.5, 1.0].
+    albcsmap : DataArray, shape (T, LAT, LON)
+        Clear-sky surface albedo at every grid point.
+    ctl : Dataset
+        Control simulation dataset; provides the output coordinate template
+        via ctl.CLMODIS_IWPR.
+
+    Returns
+    -------
+    SWkernel_map : DataArray, shape (T, reff, iwp, LAT, LON)
+        Kernel interpolated to every lon using the local clear-sky albedo.
+    """
+    albcs = np.arange(0.0, 1.5, 0.5)  # [0.0, 0.5, 1.0]
+    n_albcs = len(albcs)               # 3
+    modis_shape = ctl.CLMODIS_IWPR     # coordinate template
+
+    # --- numpy arrays --------------------------------------------------------
+    SWkernel_np = SWkernel.values                  # (T, reff, iwp, LAT, 3)
+    alb_np      = albcsmap.values                  # (T, LAT, LON)
+    nan_mask    = np.isnan(alb_np)                 # track original NaNs
+
+    # Clip albedo to [0, 1] for interpolation (NaNs become 0 temporarily)
+    alb_clipped = np.where(nan_mask, 0.0, alb_np).clip(0.0, 1.0)
+
+    nT, nreff, niwp, nLAT, _ = SWkernel_np.shape
+    nLON = alb_np.shape[2]
+
+    # --- compute fractional bin index for every (T, LAT, LON) ---------------
+    # albcs are evenly spaced at 0.5, so: frac_idx = albedo / 0.5
+    # Using np.interp handles the general case (non-uniform bins, boundary clipping).
+    frac_idx = np.interp(
+        alb_clipped.ravel(),
+        albcs,
+        np.arange(n_albcs, dtype=float),
+    ).reshape(alb_clipped.shape)                   # (T, LAT, LON)
+
+    # lower bin index and interpolation weight toward the upper bin
+    i0 = np.floor(frac_idx).astype(np.intp).clip(0, n_albcs - 2)  # (T, LAT, LON)
+    i1 = i0 + 1                                                     # (T, LAT, LON)
+    w  = (frac_idx - i0).clip(0.0, 1.0)                            # (T, LAT, LON)
+
+    # --- gather kernel values via take_along_axis ----------------------------
+    # Expand to (T, reff, iwp, LAT, LON) by inserting size-1 axes at reff/iwp.
+    # np.broadcast_to returns a read-only view (no copy), so this is cheap.
+    i0_full = np.broadcast_to(
+        i0[:, np.newaxis, np.newaxis, :, :], (nT, nreff, niwp, nLAT, nLON)
+    )
+    i1_full = np.broadcast_to(
+        i1[:, np.newaxis, np.newaxis, :, :], (nT, nreff, niwp, nLAT, nLON)
+    )
+    # take_along_axis: for each output position index along axis=4 is the value
+    # in i0_full / i1_full — equivalent to SWkernel_np[..., i0] element-wise.
+    k0 = np.take_along_axis(SWkernel_np, i0_full, axis=4)  # (T, reff, iwp, LAT, LON)
+    k1 = np.take_along_axis(SWkernel_np, i1_full, axis=4)  # (T, reff, iwp, LAT, LON)
+
+    # linear interpolation
+    w_exp      = w[:, np.newaxis, np.newaxis, :, :]         # (T, 1, 1, LAT, LON)
+    result_np  = (1.0 - w_exp) * k0 + w_exp * k1           # (T, reff, iwp, LAT, LON)
+
+    # restore NaNs where albedo was originally NaN.
+    # np.where broadcasts (T,1,1,LAT,LON) against (T,reff,iwp,LAT,LON) correctly;
+    # boolean fancy-indexing with size-1 dims does NOT broadcast and raises IndexError.
+    result_np = np.where(nan_mask[:, np.newaxis, np.newaxis, :, :], np.nan, result_np)
+
+    # wrap back into an xarray DataArray with the same coordinate structure
+    SWkernel_map = modis_shape.copy(data=result_np)
+
+    return SWkernel_map
+
 def nanarray(vector):
     # this generates a masked array with the size given by vector
     # example: vector = (90,144,28)
